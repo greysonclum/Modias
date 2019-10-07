@@ -2,7 +2,7 @@
 
 import pygame
 from time import *
-from gpiozero import Motor
+from gpiozero import Motor, OutputDevice
 import numpy as np 
 
 #Buttons (digital 0 or 1)
@@ -28,7 +28,7 @@ print ('Number of axis: %s' %axis_num)
 
 motor1 = Motor(24,27);
 motor1_enable = OutputDevice(5,initial_value=1);
-prev_motor1_val = 1;
+prev_motor1_val = 0.5;
 
 #Arm switch must be on to run motor. Default off if no connection
 def arm_bot():
@@ -39,8 +39,8 @@ axis_names_list = ['Lstick_leftright','Lstick_updown','L2','Rstick_leftright','R
 axis_values = [];
 but_names_list = ['X','O','TRI','SQ','L1','R1','L2','R2','SEL','SRT','PS','LCK','RCK','UP','DN','L','R'];
 but_values = [];
-Rstick_updown = .0001;
-Rstick_leftright = .0001;
+Rstick_updown = 0.0001;
+Rstick_leftright = 0.0001;
 
 armed = 1;
 
@@ -121,8 +121,11 @@ while armed == 1:
 
     #Determine motor values
     theta = np.arctan((Rstick_updown/Rstick_leftright)); #in radians
-    mag = np.sqrt(Rstick_updown**2+Rstick_leftright**2);
-    #motor1.value = int(255*mag*np.cos(theta));
+    if Rstick_leftright < 0:
+        mag = -np.sqrt(Rstick_updown**2+Rstick_leftright**2);
+    else:
+        mag = np.sqrt(Rstick_updown**2+Rstick_leftright**2);
+    #motor1.value = mag*np.cos(theta);
     #motorFR_val = 0;
     #motorBL_val = 0;
     #motorBR_val = 0;
@@ -131,8 +134,7 @@ while armed == 1:
         print('Rstick L:',Rstick_leftright,'Rstick_updown:',Rstick_updown);
         print('Angle', theta);
         print(motor1.value);
-    prev_motor1_val = motor1.value;
-        
+
     #LED position
     #map theta (0-360) to number of LEDs (29?).
     #power LED
@@ -140,14 +142,13 @@ while armed == 1:
     #Correct motors for direction
     #motor_correct()
     #Set motor to last value above
-    if motor1.value > 20:
-        motor1.value = int(255*mag*np.cos(theta));
+    if mag > 0.20 or mag < -0.20:
+        motor1.value = mag*np.cos(theta);
     else:
         motor1.value = 0;
-        motor2.value = 0;
-        motor3.value = 0;
-        motor4.value = 0;
+        #motor2.value = 0;
+        #motor3.value = 0;
+        #motor4.value = 0;
 
     # Motor values can only be updated every 20ms
-    sleep(.5);
-
+    sleep(0.5);
