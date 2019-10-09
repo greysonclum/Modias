@@ -35,6 +35,10 @@ motor1 = Motor(24,27);
 motor1_enable = OutputDevice(5,initial_value=1);
 motor2 = Motor(6,22);
 motor2_enable = OutputDevice(17, initial_value=1);
+motor3 = Motor(23,16);
+motor3_enable = OutputDevice(12, initial_value=1):
+motor4 = Motor(13,18);
+motor4_enable = OutputDevice(25, initial_value=1);
 prev_motor1_val = 0.1;
 
 #DEFAULT NOT ARMED. PRESS SELECT BUTTON TO ARM
@@ -43,12 +47,13 @@ def arm_bot(armed):
 
 Rstick_updown = 0;
 Rstick_leftright = 0.0001;
-armed = 1;
+arm = True;
+run = 1;
 
 
 #//*********************************MAIN LOOP*******************************************//
 
-while armed == 1:
+while run == 1:
     # GET CONTROLLER INPUT
     if pygame.mixer.get_busy() != None:
         for event in pygame.event.get():
@@ -69,51 +74,49 @@ while armed == 1:
                 SEL, START, PS = controller.get_button(8), controller.get_button(9), controller.get_button(10);
                 L_stick, R_stick = controller.get_button(11), controller.get_button(12);
                 UP_arrow, DN_arrow, LF_arrow, RT_arrow = controller.get_button(13), controller.get_button(14), controller.get_button(15), controller.get_button(16);
+    
+    #************ARM BOT WITH SEL ************/
+    if SEL == 1;
+        arm = not arm;
+        print ("Is armed?: ", arm); #toggle arming. returns True or False
 
-    # DETERMINE DIRECTION 0-360 USING UP AND DOWN COMPONENTS TO GET VECTOR ANGLE. POS VALUES IN 1ST AND 3RD QUADRANT. NEG IN 2ND AND 4TH.
-    '''
-    if Rstick_updown <= 0 and Rstick_leftright <= 0:
-        theta = np.arctan((Rstick_updown/Rstick_leftright));
-    elif Rstick_updown <= 0 and Rstick_leftright >= 0:
-        theta = np.arctan((Rstick_updown/Rstick_leftright))+np.pi;          #In radians
-    elif Rstick_updown >= 0 and Rstick_leftright >= 0:
-        theta = abs(np.arctan((Rstick_updown/Rstick_leftright)))+np.pi;
-    elif Rstick_updown >= 0 and Rstick_leftright <= 0:
-        theta = np.arctan((Rstick_updown/Rstick_leftright))+2*np.pi;
-    '''
-
-    # DETERMINE MAGNITUDE (MOTOR SPEED/DIRECTION)
+    # DETERMINE DIRECTION 0-360 USING UP AND DOWN COMPONENTS TO GET VECTOR ANGLE (MOTOR CW OR CCW) 
     theta = np.arctan((Rstick_updown/Rstick_leftright)); #in radians
+    
+    #DETERINE MAGNITUDE (MOTOR SPEED)
     if Rstick_leftright < 0:
-        mag = -np.sqrt(Rstick_updown**2+Rstick_leftright**2);
+        Rmag = -np.sqrt(Rstick_updown**2+Rstick_leftright**2);
     else:
-        mag = np.sqrt(Rstick_updown**2+Rstick_leftright**2);
-    #motor1.value = mag*np.cos(theta);
-    #motorFR_val = 0;
-    #motorBL_val = 0;
-    #motorBR_val = 0;
+        Rmag = np.sqrt(Rstick_updown**2+Rstick_leftright**2);
 
-    if motor1.value != prev_motor1_val:
-        #print('Rstick L:',Rstick_leftright,'Rstick_updown:',Rstick_updown);
-        print('Angle: ', theta);
-        print('Magnitude: ', motor1.value);
-
+    if Lstick_leftright < 0:
+        Lmag = np.sqrt(Lstick_updown**2+Lstick_leftright**2);
+    elif: Lstick_leftright >= 0:
+        Lmag = np.sqrt(Lstick_updown**2+Lstick_leftright**2);
+    
     #LED position
     #map theta (0-360) to number of LEDs (29?).
-    #power LED
 
-    #Correct motors for direction
-    #motor_correct()
-
+    # MOVE BOT WITH RSTICK.
     # TOLERANCE RANGE FOR MOTORS. REDUCE NOISE
-    if mag > 0.20 or mag < -0.20:
-        motor1.value = mag*np.cos(theta+(45*np.pi/180)); #add 45 degrees for X formation
-        motor2.value = mag*np.cos(theta+(90*np.pi/180)); #add 90 degrees
+    if arm == True and mag > 0.20 or mag < -0.20:
+        motor1.value = Rmag*np.cos(theta-(45*np.pi/180)); #sub 45 degrees for motors in X formation
+        motor2.value = Rmag*np.cos(theta+(45*np.pi/180)); #add 45 degrees
+        motor3.value = Rmag*np.cos(theta-(135*np.pi/180)); #sub 135
+        motor4.value = Rmag*np.cos(theta+(135*np.pi/180)); #add 135
     else:
         motor1.value = 0;
-        #motor2.value = 0;
-        #motor3.value = 0;
-        #motor4.value = 0;
+        motor2.value = 0;
+        motor3.value = 0;
+        motor4.value = 0;
+
+    #ROTATE (YAW) BOT WITH LEFT STICK
+
+    #PRINT PREV MOTOR1 VALUES
+    if motor1.value != prev_motor1_val:
+        print('Rstick Angle: ', theta);
+        print('Motor1 Output: ', motor1.value);
+        prev_motor1_val = motor1.value;
 
     # UPDATE MOTORS EVERY __ SECONDS
     sleep(0.2);
