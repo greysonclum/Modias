@@ -5,7 +5,7 @@ from time import *
 from gpiozero import Motor, OutputDevice
 import numpy as np 
 
-#//******************************CONTROLLER LAYOUT**********************************************//
+#//******************************PS3 CONTROLLER LAYOUT**************************************//
 #Buttons (digital 0 or 1)
 #0-select, 1-Lstick, 2-Rstick, 3-start, 4-Dup, 5-Dright, 6-Ddown, 7-Dleft, 8-L2, 9-R2, 10-L1, 11-R1
 #12-triangle, 13-circle, 14-x, 15-square, 16-PS button
@@ -18,7 +18,7 @@ import numpy as np
 # INITIALIZE PYGAME LIBRARY
 pygame.init()
 
-# CONNECT TO FIRST AVAILABLE CONTROLLER.        leave disarmed if no controller connected
+# CONNECT TO FIRST AVAILABLE CONTROLLER. Raspi needs bluetooth on and controller paired/trusted.
 controller = pygame.joystick.Joystick(0)
 controller.init()
 
@@ -41,13 +41,11 @@ motor4 = Motor(13,18);
 motor4_enable = OutputDevice(25, initial_value=1);
 prev_motor1_val = 0.1;
 
-#DEFAULT NOT ARMED. PRESS SELECT BUTTON TO ARM
-def arm_bot(armed):
-    GPIO.output(armed, 1);
+#DEFAULT NOT ARMED. PRESS SELECT BUTTON TO ARM. SEE BELOW
 
 Rstick_updown = 0;
 Rstick_leftright = 0.0001;
-arm = True;
+arm = False;
 run = 1;
 
 
