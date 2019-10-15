@@ -75,6 +75,7 @@ while run == 1:
     
     #************ARM BOT WITH SEL ************/
     if SEL == 1;
+        sleep(0.5);
         arm = not arm;
         print ("Is armed?: ", arm); #toggle arming. returns True or False
 
@@ -92,12 +93,17 @@ while run == 1:
     elif: Lstick_leftright >= 0:
         Lmag = np.sqrt(Lstick_updown**2+Lstick_leftright**2);
     
-    #LED position
+    #LED position every 360/30 = 12 degrees. Actually 29 LEDs
+    active_LED = int(theta/360*30);
+    #turn on active_LED +1 at 50%
+    #turn on active_LED at 100%
+    #turn on active_LED -1 at 50%
+    
     #map theta (0-360) to number of LEDs (29?).
 
     # MOVE BOT WITH RSTICK.
     # TOLERANCE RANGE FOR MOTORS. REDUCE NOISE
-    if arm == True and mag > 0.20 or mag < -0.20:
+    if arm == True and (mag > 0.20 or mag < -0.20):
         motor1.value = Rmag*np.cos(theta-(45*np.pi/180)); #sub 45 degrees for motors in X formation
         motor2.value = Rmag*np.cos(theta+(45*np.pi/180)); #add 45 degrees
         motor3.value = Rmag*np.cos(theta-(135*np.pi/180)); #sub 135
@@ -117,4 +123,4 @@ while run == 1:
         prev_motor1_val = motor1.value;
 
     # UPDATE MOTORS EVERY __ SECONDS
-    sleep(0.2);
+    sleep(0.05);
