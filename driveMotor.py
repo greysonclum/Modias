@@ -4,6 +4,7 @@ import pygame
 from time import *
 from gpiozero import Motor, OutputDevice
 import numpy as np 
+import pigpio as pi
 
 #//******************************PS3 CONTROLLER LAYOUT**************************************//
 #Buttons (digital 0 or 1)
@@ -36,7 +37,7 @@ motor1_enable = OutputDevice(5,initial_value=1);
 motor2 = Motor(6,22);
 motor2_enable = OutputDevice(17, initial_value=1);
 motor3 = Motor(23,16);
-motor3_enable = OutputDevice(12, initial_value=1):
+motor3_enable = OutputDevice(12, initial_value=1);
 motor4 = Motor(13,18);
 motor4_enable = OutputDevice(25, initial_value=1);
 prev_motor1_val = 0.1;
@@ -45,8 +46,11 @@ prev_motor1_val = 0.1;
 
 Rstick_updown = 0;
 Rstick_leftright = 0.0001;
+Lstick_updown = 0;
+Lstick_leftright = 0.0001;
 arm = False;
 run = 1;
+SEL = 0;
 
 
 #//*********************************MAIN LOOP*******************************************//
@@ -74,7 +78,7 @@ while run == 1:
                 UP_arrow, DN_arrow, LF_arrow, RT_arrow = controller.get_button(13), controller.get_button(14), controller.get_button(15), controller.get_button(16);
     
     #************ARM BOT WITH SEL ************/
-    if SEL == 1;
+    if SEL == 1:
         sleep(0.5);
         arm = not arm;
         print ("Is armed?: ", arm); #toggle arming. returns True or False
@@ -90,13 +94,13 @@ while run == 1:
 
     if Lstick_leftright < 0:
         Lmag = np.sqrt(Lstick_updown**2+Lstick_leftright**2);
-    elif: Lstick_leftright >= 0:
+    elif Lstick_leftright >= 0:
         Lmag = np.sqrt(Lstick_updown**2+Lstick_leftright**2);
     
     #LED position every 360/30 = 12 degrees. Actually 29 LEDs
     active_LED = int(theta/360*30);
     #turn on active_LED +1 at 50%
-    #turn on active_LED at 100%
+    pi.set_PWM_dutycycle(26,255*0.5);
     #turn on active_LED -1 at 50%
     
     #map theta (0-360) to number of LEDs (29?).
@@ -104,10 +108,10 @@ while run == 1:
     # MOVE BOT WITH RSTICK.
     # TOLERANCE RANGE FOR MOTORS. REDUCE NOISE
     if arm == True and (mag > 0.20 or mag < -0.20):
-        motor1.value = Rmag*np.cos(theta-(45*np.pi/180)); #sub 45 degrees for motors in X formation
-        motor2.value = Rmag*np.cos(theta+(45*np.pi/180)); #add 45 degrees
-        motor3.value = Rmag*np.cos(theta-(135*np.pi/180)); #sub 135
-        motor4.value = Rmag*np.cos(theta+(135*np.pi/180)); #add 135
+        motor1.value = Rmag*np.cos(theta); #sub 45 degrees for motors in X formation
+        motor2.value = Rmag*np.cos(theta); #add 45 degrees
+        motor3.value = Rmag*np.cos(theta); #sub 135
+        motor4.value = Rmag*np.cos(theta); #add 135
     else:
         motor1.value = 0;
         motor2.value = 0;
