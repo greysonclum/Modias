@@ -100,18 +100,18 @@ while run == 1:
     #LED position every 360/30 = 12 degrees. Actually 29 LEDs
     active_LED = int(theta/360*30);
     #turn on active_LED +1 at 50%
-    pi.set_PWM_dutycycle(26,255*0.5);
+    #turn on active_LED 
     #turn on active_LED -1 at 50%
     
     #map theta (0-360) to number of LEDs (29?).
 
     # MOVE BOT WITH RSTICK.
     # TOLERANCE RANGE FOR MOTORS. REDUCE NOISE
-    if arm == True and (mag > 0.20 or mag < -0.20):
-        motor1.value = Rmag*np.cos(theta); #sub 45 degrees for motors in X formation
-        motor2.value = Rmag*np.cos(theta); #add 45 degrees
-        motor3.value = Rmag*np.cos(theta); #sub 135
-        motor4.value = Rmag*np.cos(theta); #add 135
+    if arm == True and (Rmag > 0.20 or Rmag < -0.20):
+        motor1.value = Rmag*np.cos(theta);
+        motor2.value = Rmag*np.cos(theta); 
+        motor3.value = Rmag*np.cos(theta); 
+        motor4.value = Rmag*np.cos(theta);
     else:
         motor1.value = 0;
         motor2.value = 0;
