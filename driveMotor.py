@@ -89,7 +89,7 @@ while run == 1:
     #DETERINE MAGNITUDE (MOTOR SPEED)
     if Rstick_leftright or Rstick_updown < 0:
         Rmag = -np.sqrt(Rstick_updown**2+Rstick_leftright**2);
-        if Rmag < 1:
+        if Rmag < -1:
             Rmag = -1;
     else:
         Rmag = np.sqrt(Rstick_updown**2+Rstick_leftright**2);
@@ -111,11 +111,11 @@ while run == 1:
 
     # MOVE BOT WITH RSTICK.
     # TOLERANCE RANGE FOR MOTORS. REDUCE NOISE
-    if arm == True and (Rmag > 0.20 or Rmag < -0.20):
+    if (Rmag > 0.20 or Rmag < -0.20):
         motor1.value = Rmag*np.cos(theta);
         motor2.value = Rmag*np.sin(theta); 
-        motor3.value = Rmag*np.cos(theta); 
-        motor4.value = Rmag*np.sin(theta);
+        motor3.value = -Rmag*np.cos(theta); 
+        motor4.value = -Rmag*np.sin(theta);
     else:
         motor1.value = 0;
         motor2.value = 0;
