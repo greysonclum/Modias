@@ -40,7 +40,11 @@ motor3 = Motor(23,16);
 motor3_enable = OutputDevice(12, initial_value=1);
 motor4 = Motor(13,18);
 motor4_enable = OutputDevice(25, initial_value=1);
+prev_theta = 0.1;
 prev_motor1_val = 0.1;
+prev_motor2_val = 0.1;
+prev_motor3_val = 0.1;
+prev_motor4_val = 0.1;
 
 #DEFAULT NOT ARMED. PRESS SELECT BUTTON TO ARM. SEE BELOW
 
@@ -79,9 +83,9 @@ while run == 1:
     
     #************ARM BOT WITH SEL ************/
     if SEL == 1:
-        sleep(0.5);
         arm = not arm;
         print ("Is armed?: ", arm); #toggle arming. returns True or False
+        sleep(2);
 
     # DETERMINE DIRECTION 0-360 USING UP AND DOWN COMPONENTS TO GET VECTOR ANGLE (MOTOR CW OR CCW) 
     theta = np.arctan((Rstick_updown/Rstick_leftright)); #in radians
@@ -97,7 +101,7 @@ while run == 1:
             Rmag = 1;
 
     if Lstick_leftright < 0:
-        Lmag = np.sqrt(Lstick_updown**2+Lstick_leftright**2);
+        Lmag = -np.sqrt(Lstick_updown**2+Lstick_leftright**2);
     elif Lstick_leftright >= 0:
         Lmag = np.sqrt(Lstick_updown**2+Lstick_leftright**2);
     
@@ -111,11 +115,15 @@ while run == 1:
 
     # MOVE BOT WITH RSTICK.
     # TOLERANCE RANGE FOR MOTORS. REDUCE NOISE
+    motor_1 = 0;
+    motor_2 = 0;
+    motor_3 = 0;
+    motor_4 = 0;
     if (Rmag > 0.20 or Rmag < -0.20):
-        motor1.value = Rmag*np.cos(theta);
-        motor2.value = Rmag*np.sin(theta); 
-        motor3.value = -Rmag*np.cos(theta); 
-        motor4.value = -Rmag*np.sin(theta);
+        motor_1 = Rmag*np.cos(theta);
+        motor_2 = Rmag*np.sin(theta); 
+        motor_3 = Rmag*np.cos(theta); 
+        motor_4 = Rmag*np.sin(theta);
     else:
         motor1.value = 0;
         motor2.value = 0;
@@ -125,10 +133,21 @@ while run == 1:
     #ROTATE (YAW) BOT WITH LEFT STICK
 
     #PRINT PREV MOTOR1 VALUES
-    if motor1.value != prev_motor1_val:
-        print('Rstick Angle: ', theta);
-        print('Motor1 Output: ', motor1.value);
-        prev_motor1_val = motor1.value;
+    if theta != prev_theta:
+        print('Rstick Angle: ', theta*(180/np.pi));
+        prev_theta = theta;
+    if motor_1 != prev_motor1_val:
+        print('Motor1 Output: ', motor_1);
+        prev_motor1_val = motor_1;
+    if motor_2 != prev_motor2_val:
+        print('Motor2 Output: ', motor_2);
+        prev_motor2_val = motor_2;
+    if motor_3 != prev_motor3_val:
+        print('MOtor3 Output: ', motor_3);
+        prev_motor3_val = motor_3;
+    if motor_4 != prev_motor4_val:
+        print('Motor4 Output: ', motor_4);
+        prev_motor4_val = motor_4;
 
     # UPDATE MOTORS EVERY __ SECONDS
-    sleep(0.05);
+    sleep(0.1);
